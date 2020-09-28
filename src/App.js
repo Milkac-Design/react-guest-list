@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import './App.css';
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core';
@@ -52,14 +52,65 @@ function App() {
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   //
-  //  GET ALL GUESTS
-  const baseUrl = 'https://react-guest-list.herokuapp.com/';
-  async function getGuests() {
-    const response = await fetch(`${baseUrl}/`);
-    const allGuests = await response.json();
-  }
-  getGuests();
+  //API TRIALS
   //
+  //
+
+  //
+  const [apiGuestList, setApiGuestList] = useState([]);
+  //  GET ALL GUESTS
+  const baseUrl = 'https://react-guest-list.herokuapp.com';
+  useEffect(() => {
+    async function getGuests() {
+      const response = await fetch(`${baseUrl}/`);
+      const allGuests = await response.json();
+      setApiGuestList(allGuests);
+      // console.log(allGuests);
+    }
+    getGuests();
+  }, [apiGuestList]);
+  //
+  //ADD GUEST
+  async function addGuest() {
+    await fetch(`${baseUrl}/`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        firstName: `${firstName}`,
+        lastName: `${lastName}`,
+      }),
+    });
+  }
+
+  //
+  // REMOVE GUEST
+
+  async function deleteGuest(id) {
+    await fetch(`${baseUrl}/${id}`, { method: 'DELETE' });
+  }
+
+  //
+  //UPDATE ATTENDING
+  async function updateAttending(id) {
+    await fetch(`${baseUrl}/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ attending: true }),
+    });
+  }
+  async function updateNotAttending(id) {
+    await fetch(`${baseUrl}/${id}`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ attending: false }),
+    });
+  }
   //
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -68,6 +119,7 @@ function App() {
       { name: `${firstName} ${lastName}`, isAttending: true },
     ];
     setGuestList(fullName);
+    addGuest();
   };
 
   const removeGuest = (index) => {
@@ -83,9 +135,7 @@ function App() {
     } else {
       isAttending[index].isAttending = false;
     }
-
     setGuestList(isAttending);
-    console.log(isAttending);
   };
 
   return (
@@ -129,6 +179,32 @@ function App() {
             </li>
           ))}
         </ul>
+      </div>
+      <div>
+        <div>
+          <h2>Api Guestlist</h2>
+          <div>
+            <ul css={guestListStyle}>
+              {apiGuestList.map((item, index) => (
+                <li
+                  key={item.id}
+                  style={{
+                    color: apiGuestList[index].attending ? 'green' : 'red',
+                  }}
+                >
+                  {item.firstName} {item.lastName}
+                  <button onClick={() => updateAttending(item.id)}>
+                    Attending
+                  </button>
+                  <button onClick={() => updateNotAttending(item.id)}>
+                    Not Attending
+                  </button>
+                  <button onClick={() => deleteGuest(item.id)}>Remove</button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );

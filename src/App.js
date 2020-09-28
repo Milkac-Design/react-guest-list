@@ -42,22 +42,10 @@ const guestListStyle = css`
 `;
 
 function App() {
-  const [guestList, setGuestList] = useState([
-    {
-      name: 'Mario Milkovic',
-      isAttending: true,
-    },
-    { name: 'Karl Horky', isAttending: true },
-  ]);
+  const [apiGuestList, setApiGuestList] = useState([]);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  //
-  //API TRIALS
-  //
-  //
 
-  //
-  const [apiGuestList, setApiGuestList] = useState([]);
   //  GET ALL GUESTS
   const baseUrl = 'https://react-guest-list.herokuapp.com';
   useEffect(() => {
@@ -65,7 +53,6 @@ function App() {
       const response = await fetch(`${baseUrl}/`);
       const allGuests = await response.json();
       setApiGuestList(allGuests);
-      // console.log(allGuests);
     }
     getGuests();
   }, [apiGuestList]);
@@ -83,14 +70,11 @@ function App() {
       }),
     });
   }
-
   //
   // REMOVE GUEST
-
   async function deleteGuest(id) {
     await fetch(`${baseUrl}/${id}`, { method: 'DELETE' });
   }
-
   //
   //UPDATE ATTENDING
   async function updateAttending(id) {
@@ -114,28 +98,7 @@ function App() {
   //
   const handleSubmit = (e) => {
     e.preventDefault();
-    const fullName = [
-      ...guestList,
-      { name: `${firstName} ${lastName}`, isAttending: true },
-    ];
-    setGuestList(fullName);
     addGuest();
-  };
-
-  const removeGuest = (index) => {
-    const removed = [...guestList];
-    removed.splice(index, 1);
-    setGuestList(removed);
-  };
-
-  const attending = (index) => {
-    const isAttending = [...guestList];
-    if (isAttending[index].isAttending === false) {
-      isAttending[index].isAttending = true;
-    } else {
-      isAttending[index].isAttending = false;
-    }
-    setGuestList(isAttending);
   };
 
   return (
@@ -163,22 +126,6 @@ function App() {
           </label>
           <button>Add</button>
         </form>
-      </div>
-      <div>
-        <h2>Guest List</h2>
-      </div>
-      <div>
-        <ul css={guestListStyle}>
-          {guestList.map((item, index) => (
-            <li
-              style={{ color: guestList[index].isAttending ? 'green' : 'red' }}
-            >
-              {item.name}
-              <button onClick={() => attending(index)}>Attending</button>
-              <button onClick={() => removeGuest(index)}>Remove</button>
-            </li>
-          ))}
-        </ul>
       </div>
       <div>
         <div>

@@ -1,3 +1,4 @@
+// eslint-disable-next-line no-unused-vars
 import React, { useEffect, useState } from 'react';
 import './App.css';
 /** @jsx jsx */
@@ -40,12 +41,11 @@ const guestListStyle = css`
     border-radius: 40px;
   }
 `;
-
 function App() {
   const [apiGuestList, setApiGuestList] = useState([]);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-
+  const [loading, setLoading] = useState(false);
   //  GET ALL GUESTS
   const baseUrl = 'https://react-guest-list.herokuapp.com';
   useEffect(() => {
@@ -54,11 +54,14 @@ function App() {
       const allGuests = await response.json();
       setApiGuestList(allGuests);
     }
-    getGuests();
-  }, [apiGuestList]);
+    if (loading === false) {
+      getGuests();
+    }
+  }, [loading]);
   //
   //ADD GUEST
   async function addGuest() {
+    setLoading(true);
     await fetch(`${baseUrl}/`, {
       method: 'POST',
       headers: {
@@ -69,15 +72,19 @@ function App() {
         lastName: `${lastName}`,
       }),
     });
+    setLoading(false);
   }
   //
   // REMOVE GUEST
   async function deleteGuest(id) {
+    setLoading(true);
     await fetch(`${baseUrl}/${id}`, { method: 'DELETE' });
+    setLoading(false);
   }
   //
   //UPDATE ATTENDING
   async function updateAttending(id) {
+    setLoading(true);
     await fetch(`${baseUrl}/${id}`, {
       method: 'PATCH',
       headers: {
@@ -85,6 +92,7 @@ function App() {
       },
       body: JSON.stringify({ attending: true }),
     });
+    setLoading(false);
   }
   async function updateNotAttending(id) {
     await fetch(`${baseUrl}/${id}`, {
